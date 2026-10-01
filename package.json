@@ -1,0 +1,103 @@
+{
+  "name": "tennis-players-api",
+  "version": "1.0.0",
+  "description": "API REST de statistiques de joueurs de tennis (NestJS, AWS Lambda, CDK)",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p infra/tsconfig.json",
+    "test": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --watch",
+    "test:cov": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --coverage",
+    "test:e2e": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --config test/jest-e2e.json",
+    "test:int": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --config test/jest-integration.json --runInBand",
+    "test:infra": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --config infra/jest.config.json",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "db:migrate": "ts-node -P tsconfig.json src/database/migrate.cli.ts",
+    "cdk": "cdk",
+    "cdk:synth": "npm run build && cdk synth",
+    "cdk:diff": "npm run build && cdk diff",
+    "cdk:deploy": "npm run build && cdk deploy"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@nestjs/cli": "12.0.8",
+    "@nestjs/testing": "12.1.2",
+    "@types/aws-lambda": "8.10.164",
+    "@types/express": "5.0.6",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.19.0",
+    "@types/supertest": "7.2.1",
+    "aws-cdk": "2.1143.0",
+    "aws-cdk-lib": "2.271.0",
+    "aws-sdk-client-mock": "4.1.0",
+    "constructs": "10.8.1",
+    "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.6",
+    "globals": "17.12.0",
+    "jest": "30.5.2",
+    "prettier": "3.9.9",
+    "supertest": "7.3.0",
+    "ts-jest": "29.4.14",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.71.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1144.0",
+    "@aws-sdk/lib-dynamodb": "3.1144.0",
+    "@codegenie/serverless-express": "5.0.0",
+    "@nestjs/common": "12.1.2",
+    "@nestjs/core": "12.1.2",
+    "@nestjs/platform-express": "12.1.2",
+    "@nestjs/swagger": "12.0.2",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.15.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.ts",
+      "!main.ts",
+      "!lambda.ts",
+      "!app.setup.ts",
+      "!**/*.module.ts",
+      "!**/index.ts",
+      "!**/testing/**",
+      "!**/*.cli.ts"
+    ],
+    "coverageDirectory": "../coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# CDK
+cdk.out/
+cdk.context.json
+
+# Tests
+coverage/
+
+# Env & OS
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
