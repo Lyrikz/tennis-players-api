@@ -64,7 +64,7 @@ exports[`TennisPlayersStack matches the snapshot 1`] = `
         ],
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-123456789012-eu-west-3",
-          "S3Key": "4ec919641b0c349f57982fbd4db1178d99fd1707ba0cc54727b79360786ecde5.zip",
+          "S3Key": "<asset-hash>.zip",
         },
         "Description": "Tennis players REST API (NestJS)",
         "Environment": {
@@ -356,7 +356,7 @@ exports[`TennisPlayersStack matches the snapshot 1`] = `
         ],
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-123456789012-eu-west-3",
-          "S3Key": "31c6dd018e4ef78ede67057ad9bcccb8a5447c4c0510c1ab5a7f8f6a7eb8effc.zip",
+          "S3Key": "<asset-hash>.zip",
         },
         "Description": "Applies DynamoDB data migrations",
         "Environment": {
@@ -523,7 +523,7 @@ exports[`TennisPlayersStack matches the snapshot 1`] = `
       "Properties": {
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-123456789012-eu-west-3",
-          "S3Key": "e16ffb3b34af185b8b30c88fdb19faa13b6c42bb38580485c4e84b384ee48b63.zip",
+          "S3Key": "<asset-hash>.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (TestStack/MigrationProvider)",
         "Environment": {

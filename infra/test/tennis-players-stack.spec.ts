@@ -19,6 +19,17 @@ function synthesize(props: Partial<TennisPlayersStackProps> = {}): Template {
   return Template.fromStack(createStack(props));
 }
 
+/**
+ * With bundling skipped, asset hashes are derived from the bundling options,
+ * which contain the absolute project path: they differ between machines (CI).
+ * They identify a build, not the infrastructure, so the snapshot masks them.
+ */
+function withoutAssetHashes(template: Template): unknown {
+  return JSON.parse(
+    JSON.stringify(template.toJSON()).replace(/"[a-f0-9]{64}\.zip"/g, '"<asset-hash>.zip"'),
+  );
+}
+
 describe('TennisPlayersStack', () => {
   const template = synthesize();
 
@@ -199,7 +210,7 @@ describe('TennisPlayersStack', () => {
   });
 
   it('matches the snapshot', () => {
-    expect(template.toJSON()).toMatchSnapshot();
+    expect(withoutAssetHashes(template)).toMatchSnapshot();
   });
 
   describe('API key', () => {
