@@ -1,4 +1,4 @@
-# Déploiement et CI/CD
+# Déploiement et intégration continue
 
 [← README](../README.md)
 
@@ -27,7 +27,7 @@ export API_KEY=$(openssl rand -hex 32)          # à conserver : c'est la valeur
 # ou : echo "API_KEY=$(openssl rand -hex 32)" >> .env
 ```
 
-En CI, elle provient du secret GitHub `API_KEY`. Pour la changer, il suffit de redéployer avec une nouvelle valeur.
+Pour la changer, il suffit de redéployer avec une nouvelle valeur.
 
 Limite assumée : une variable d'environnement est lisible par quiconque a accès en lecture à la configuration de la Lambda ou au template CloudFormation. En production, on la stockerait dans Secrets Manager ou SSM Parameter Store (voir [roadmap.md](roadmap.md)).
 
@@ -69,85 +69,15 @@ Le coût d'une démo est négligeable : sans trafic, rien n'est facturé hormis 
 
 Pour tout supprimer : `npx cdk destroy`.
 
-## CI/CD GitHub Actions
+## Intégration continue
 
-| Workflow                       | Déclencheur                 | Jobs                                                                                                              |
-| ------------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`     | Chaque PR (et réutilisable) | format, lint, typecheck · tests unitaires, e2e et infra · intégration contre DynamoDB Local · build + `cdk synth` |
-| `.github/workflows/deploy.yml` | Push sur `main`, manuel     | CI complète, puis `cdk deploy` et les smoke tests en lecture seule sur l'API déployée                             |
+`.github/workflows/ci.yml` tourne à chaque push sur `main` et sur chaque pull request :
 
-Le déploiement s'authentifie auprès d'AWS via **OIDC** : GitHub émet un jeton court, échangé contre des identifiants temporaires. **Aucune clé AWS n'est stockée dans GitHub.**
+| Job               | Étapes                                                               |
+| ----------------- | -------------------------------------------------------------------- |
+| Lint & typecheck  | `format:check`, `lint`, `typecheck`                                  |
+| Tests             | Tests unitaires avec seuils de couverture, e2e et infra (CDK)        |
+| Integration tests | Tests d'intégration contre DynamoDB Local (service container)        |
+| Build & CDK synth | Build de l'application, bundling des Lambdas et synthèse du template |
 
-### Rôle IAM à créer (une seule fois)
-
-**1. Déclarer GitHub comme fournisseur OIDC du compte**
-
-S'il n'existe pas déjà :
-
-```bash
-aws iam create-open-id-connect-provider \
-  --url https://token.actions.githubusercontent.com \
-  --client-id-list sts.amazonaws.com
-```
-
-**2. Créer le rôle `github-actions-tennis-players-deploy`**
-
-Sa politique de confiance (`trust-policy.json`) restreint l'usage du rôle **à ce dépôt et à l'environnement `production`** :
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub": "repo:<GITHUB_OWNER>/<GITHUB_REPO>:environment:production"
-        }
-      }
-    }
-  ]
-}
-```
-
-**3. Donner au rôle le minimum de permissions**
-
-Avec CDK, le pipeline n'a besoin **que** de pouvoir endosser les rôles créés par `cdk bootstrap`. Ce sont eux qui portent les droits CloudFormation, S3 et ECR. Politique à attacher (`deploy-policy.json`) :
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "sts:AssumeRole",
-      "Resource": "arn:aws:iam::<ACCOUNT_ID>:role/cdk-hnb659fds-*-<ACCOUNT_ID>-eu-north-1"
-    }
-  ]
-}
-```
-
-Création du rôle et rattachement de la politique :
-
-```bash
-aws iam create-role --role-name github-actions-tennis-players-deploy \
-  --assume-role-policy-document file://trust-policy.json
-aws iam put-role-policy --role-name github-actions-tennis-players-deploy \
-  --policy-name cdk-deploy --policy-document file://deploy-policy.json
-```
-
-**4. Configurer le dépôt GitHub**
-
-Dans _Settings → Environments_, créer l'environnement `production` (on peut y ajouter des reviewers obligatoires), puis définir ces variables (des _variables_, pas des secrets) :
-
-| Variable              | Valeur                                                                |
-| --------------------- | --------------------------------------------------------------------- |
-| `AWS_DEPLOY_ROLE_ARN` | `arn:aws:iam::<ACCOUNT_ID>:role/github-actions-tennis-players-deploy` |
-| `AWS_REGION`          | `eu-north-1`                                                          |
-
-Il faut aussi définir le **secret** `API_KEY` de l'environnement `production` : c'est la clé d'API passée à la Lambda.
+Le déploiement se fait depuis un poste avec `npm run cdk:deploy`, comme décrit ci-dessus. Le déploiement continu (OIDC, sans clé AWS stockée) n'est pas mis en place : le compte AWS de démonstration interdit la création d'un fournisseur OIDC. Voir [roadmap.md](roadmap.md).

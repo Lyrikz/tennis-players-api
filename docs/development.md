@@ -86,6 +86,6 @@ BASE_URL=http://localhost:3000 API_KEY=$API_KEY ALLOW_WRITES=1 npm run test:smok
 BASE_URL=<ApiUrl> API_KEY=$API_KEY npm run test:smoke
 ```
 
-Le workflow de déploiement l'exécute en lecture seule après chaque `cdk deploy`.
+Après un `npm run cdk:deploy`, le lancer en lecture seule sur l'URL déployée permet de vérifier le déploiement de bout en bout.
 
 **Qualité** : TypeScript `strict` (avec `noUncheckedIndexedAccess`, `noImplicitOverride`…), ESLint avec les règles `recommendedTypeChecked` de typescript-eslint, et Prettier. Tout est vérifié en CI.

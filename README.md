@@ -76,7 +76,7 @@ BASE_URL=<ApiUrl> API_KEY=<clé> npm run test:smoke   # vérifie le déploiement
 
 La table DynamoDB est créée et alimentée automatiquement : les migrations s'exécutent pendant le déploiement. Suppression : `npx cdk destroy`.
 
-Ressources créées, déploiement continu via GitHub Actions (OIDC) et rôle IAM à créer : [docs/deployment.md](docs/deployment.md).
+Ressources créées et intégration continue : [docs/deployment.md](docs/deployment.md).
 
 ## Le projet en bref
 
@@ -118,5 +118,5 @@ Le détail est dans [docs/architecture.md](docs/architecture.md).
 | [docs/api.md](docs/api.md)                   | Contrat HTTP, validation, format d'erreur, règles de calcul, exemples      |
 | [docs/architecture.md](docs/architecture.md) | Couches, choix techniques justifiés, modèle DynamoDB, migrations, bundling |
 | [docs/development.md](docs/development.md)   | Scripts, DynamoDB Local, Docker, stratégie de tests                        |
-| [docs/deployment.md](docs/deployment.md)     | Déploiement AWS, clé d'API, CI/CD GitHub Actions, rôle IAM                 |
+| [docs/deployment.md](docs/deployment.md)     | Déploiement AWS, clé d'API, ressources créées, intégration continue        |
 | [docs/roadmap.md](docs/roadmap.md)           | Pistes d'amélioration et limites connues                                   |

@@ -39,6 +39,7 @@
 
 **Exploitation**
 
+- **Déploiement continu** : un job `cdk deploy` sur `main`, authentifié par **OIDC** (rôle IAM endossé avec un jeton GitHub de courte durée, sans clé AWS stockée), suivi des smoke tests en lecture seule sur l'API déployée. Non mis en place : la SCP du compte de démonstration interdit la création du fournisseur OIDC (`iam:CreateOpenIDConnectProvider`).
 - Des environnements `staging` / `production` distincts (paramètre de stage dans la stack).
 - Un domaine personnalisé (Route 53 + ACM).
 - Un déploiement progressif (alias Lambda + CodeDeploy canary).
