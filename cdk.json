@@ -1,0 +1,12 @@
+{
+  "app": "npx ts-node --prefer-ts-exts -P infra/tsconfig.json infra/bin/app.ts",
+  "watch": {
+    "include": ["src/**", "infra/**"],
+    "exclude": ["**/*.spec.ts", "infra/test/**"]
+  },
+  "context": {
+    "@aws-cdk/aws-lambda-nodejs:sdkV3ExcludeSmithyPackages": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:target-partitions": ["aws"]
+  }
+}
