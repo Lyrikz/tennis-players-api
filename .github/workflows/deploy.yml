@@ -1,0 +1,66 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deployments of the same stack at once, and never cancel one halfway.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: CDK deploy
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.outputs.outputs.api_url }}
+    permissions:
+      contents: read
+      # Required to request the GitHub OIDC token exchanged for AWS credentials.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Configure AWS credentials (OIDC, no stored keys)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: github-deploy-${{ github.run_id }}
+
+      - name: Deploy
+        run: npm run cdk:deploy -- --ci --require-approval never --outputs-file cdk-outputs.json
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+
+      - name: Expose outputs
+        id: outputs
+        run: |
+          api_url=$(jq -r '.TennisPlayersApi.ApiUrl' cdk-outputs.json)
+          echo "api_url=${api_url}" >> "$GITHUB_OUTPUT"
+          echo "### Deployed :rocket:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- API: ${api_url}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Docs: $(jq -r '.TennisPlayersApi.DocsUrl' cdk-outputs.json)" >> "$GITHUB_STEP_SUMMARY"
+
+      # Black-box scenarios on every endpoint, read-only: no data is written.
+      - name: Smoke test
+        run: npm run test:smoke
+        env:
+          BASE_URL: ${{ steps.outputs.outputs.api_url }}
+          API_KEY: ${{ secrets.API_KEY }}
